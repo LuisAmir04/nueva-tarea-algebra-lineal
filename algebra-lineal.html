@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagonalización de Matrices con Python</title>
+<script> 
+window.MathJax = {
+    tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']], 
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+    }
+};
+</script>   
+
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1e1e1e;
+            color: #ffffff;
+            overflow: hidden; 
+        }
+
+     
+        .slide-container {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+ 
+        .slide {
+            display: none; 
+            width: 80%;
+            max-width: 1000px;
+            text-align: center;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .slide.active {
+            display: block; 
+        }
+
+  
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 { font-size: 3em; color: #4ec9b0; margin-bottom: 0.2em; }
+        h2 { font-size: 2.2em; color: #569cd6; border-bottom: 2px solid #569cd6; display: inline-block; padding-bottom: 10px; }
+        p, li { font-size: 1.3em; line-height: 1.6; color: #d4d4d4; }
+        ul { text-align: left; display: inline-block; }
+        
+
+        .math-box {
+            background: #2d2d2d;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 1px solid #3c3c3c;
+        }
+
+
+        .controls {
+            position: absolute;
+            bottom: 30px;
+            width: 100%;
+            text-align: center;
+            z-index: 100;
+        }
+
+        button {
+            background-color: #007acc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 0 10px;
+            transition: background 0.3s;
+        }
+
+        button:hover { background-color: #005f9e; }
+        button:disabled { background-color: #444; cursor: not-allowed; }
+
+
+        pre {
+            text-align: left;
+            max-height: 60vh;
+            overflow-y: auto;
+            border-radius: 8px;
+            font-size: 0.85em !important;
+        }
+
+        .highlight { color: #ce9178; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="slide-container">
+        
+        <div class="slide active">
+            <h1>Diagonalización de Matrices</h1>
+            <h3>Conceptos Teóricos y Aplicación en Python</h3>
+            <p>Una herramienta clave en Álgebra Lineal y Ciencia de Datos</p>
+            <br>
+            <p style="font-size: 0.9em; opacity: 0.7;">Usa las flechas del teclado ⬅️ ➡️ para navegar</p>
+        </div>
+
+        <div class="slide">
+            <h2>1. ¿Qué es la Diagonalización?</h2>
+            <p>Es el proceso de transformar una matriz complicada en una matriz diagonal (simple).</p>
+            <div style="text-align: left; margin: 0 auto; max-width: 800px;">
+                <ul>
+                    <li>Una <b>Matriz Normal</b> mezcla las coordenadas (x, y, z interactúan).</li>
+                    <li>Una <b>Matriz Diagonal</b> actúa independientemente en cada eje.</li>
+                    <li>Es fundamental para simplificar cálculos, como potencias de matrices (A^100).</li>
+                </ul>
+            </div>
+            <div class="math-box">
+                "Cambiar a un sistema de coordenadas donde la transformación es simple."
+            </div>
+        </div>
+
+        <div class="slide">
+            <h2>2. La Fórmula Mágica</h2>
+            <p>Una matriz $A$ es diagonalizable si existe una matriz $P$ tal que:</p>
+            
+            <div class="math-box">
+                $$ A = P \cdot D \cdot P^{-1} $$
+            </div>
+
+            <ul style="font-size: 1.1em;">
+                <li><b>$D$ (Diagonal):</b> Contiene los <span class="highlight">Valores Propios</span> ($\lambda$) en la diagonal.</li>
+                <li><b>$P$ (Paso):</b> Sus columnas son los <span class="highlight">Vectores Propios</span> ($v$).</li>
+                <li><b>$P^{-1}$:</b> Es la inversa de la matriz de paso.</li>
+            </ul>
+        </div>
+
+        <div class="slide">
+            <h2>3. El Algoritmo (Paso a paso)</h2>
+            <p>Para hacerlo manualmente seguimos estos 3 pasos:</p>
+            <ol style="text-align: left; display: inline-block;">
+                <li><b>Hallar Valores Propios ($\lambda$):</b> <br>Resolver $\det(A - \lambda I) = 0$.</li>
+                <li><b>Hallar Vectores Propios ($v$):</b> <br>Resolver el sistema $(A - \lambda I)v = 0$ para cada $\lambda$.</li>
+                <li><b>Construir Matrices:</b> <br>Formar $D$ con los $\lambda$ y $P$ con los vectores $v$.</li>
+            </ol>
+        </div>
+
+        <div class="slide">
+            <h2>4. Implementación en Python</h2>
+            <p>Usamos la librería <code>NumPy</code> para automatizar el cálculo.</p>
+            <pre><code class="language-python">import numpy as np
+
+# 1. Definir la matriz
+A = np.array([[4, 1], 
+              [2, 3]])
+
+# 2. Calcular todo con una sola función
+val_propios, vec_propios = np.linalg.eig(A)
+
+# 3. Construir matrices D y P
+P = vec_propios
+D = np.diag(val_propios)
+
+# 4. Comprobación (A = P * D * P_inv)
+P_inv = np.linalg.inv(P)
+A_reconstruida = P @ D @ P_inv
+
+print("Matriz Original:\n", A)
+print("Matriz Reconstruida:\n", A_reconstruida)</code></pre>
+        </div>
+
+        <div class="slide">
+            <img src="Screenshot_4.png" alt="" style="max-width: 120%; max-height: 120%; right: 10%; position: relative;">
+        </div>
+
+        <div class="slide">
+            <h2>Resumen</h2>
+            <p>La diagonalización nos permite entender la "geometría" interna de la matriz.</p>
+            
+            <table border="1" style="margin: 20px auto; border-collapse: collapse; border-color: #555; width: 80%;">
+                <tr style="background: #333;">
+                    <th style="padding: 15px;">Matriz A</th>
+                    <th style="padding: 15px;">Matriz D (Diagonal)</th>
+                </tr>
+                <tr>
+                    <td style="padding: 15px;">Operaciones complejas</td>
+                    <td style="padding: 15px;">Operaciones simples</td>
+                </tr>
+                <tr>
+                    <td style="padding: 15px;">Ejes mezclados</td>
+                    <td style="padding: 15px;">Ejes independientes</td>
+                </tr>
+            </table>
+            
+            <h3 style="color: #4ec9b0; margin-top: 30px;">¡Gracias!</h3>
+        </div>
+
+    </div>
+
+    <div class="controls">
+        <button id="prevBtn" onclick="changeSlide(-1)">Anterior</button>
+        <span id="slideIndicator" style="font-size: 1.2em; margin: 0 15px;">1 / 6</span>
+        <button id="nextBtn" onclick="changeSlide(1)">Siguiente</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        const indicator = document.getElementById('slideIndicator');
+
+        function showSlide(index) {
+
+            slides.forEach(slide => slide.classList.remove('active'));
+            
+ 
+            if (index >= totalSlides) currentSlide = 0;
+            else if (index < 0) currentSlide = totalSlides - 1;
+            else currentSlide = index;
+
+
+            slides[currentSlide].classList.add('active');
+            
+
+            indicator.textContent = `${currentSlide + 1} / ${totalSlides}`;
+        }
+
+        function changeSlide(direction) {
+            showSlide(currentSlide + direction);
+        }
+
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "ArrowRight") {
+                changeSlide(1);
+            } else if (event.key === "ArrowLeft") {
+                changeSlide(-1);
+            }
+        });
+    </script>
+</body>
+</html>
