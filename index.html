@@ -163,25 +163,53 @@ window.MathJax = {
         <div class="slide">
             <h2>4. Implementación en Python</h2>
             <p>Usamos la librería <code>NumPy</code> para automatizar el cálculo.</p>
-            <pre><code class="language-python">import numpy as np
+            <pre><code class="language-python">
+                import numpy as np
 
-# 1. Definir la matriz
-A = np.array([[4, 1], 
-              [2, 3]])
+def demostrar_diagonalizacion():
+    print("--- 1. DEFINIR LA MATRIZ A ---")
+    # Usaremos una matriz 2x2 simple para el ejemplo
+    # A = [[4, 1],
+    #      [2, 3]]
+    A = np.array([[4, 1], 
+                  [2, 3]])
+    print(f"Matriz Original A:\n{A}\n")
 
-# 2. Calcular todo con una sola función
-val_propios, vec_propios = np.linalg.eig(A)
+    print("--- 2. CALCULAR VALORES Y VECTORES PROPIOS ---")
+    # np.linalg.eig hace todo el trabajo duro matemático
+    valores_propios, vectores_propios = np.linalg.eig(A)
 
-# 3. Construir matrices D y P
-P = vec_propios
-D = np.diag(val_propios)
+    print(f"Valores Propios (λ): {valores_propios}")
+    print(f"Vectores Propios (Matriz P):\n{vectores_propios}\n")
+    
+    # NOTA: En 'vectores_propios', cada COLUMNA es un vector propio.
 
-# 4. Comprobación (A = P * D * P_inv)
-P_inv = np.linalg.inv(P)
-A_reconstruida = P @ D @ P_inv
+    print("--- 3. CONSTRUIR MATRICES D y P ---")
+    # P es directamente la matriz de vectores propios que nos dio numpy
+    P = vectores_propios
+    
+    # D debe ser una matriz diagonal con los valores propios
+    D = np.diag(valores_propios)
+    print(f"Matriz Diagonal D:\n{D}\n")
+    
+    print("--- 4. COMPROBACIÓN (A = PDP^-1) ---")
+    # Calculamos la inversa de P
+    P_inv = np.linalg.inv(P)
+    
+    # Realizamos la multiplicación P * D * P_inv
+    # En Python, el operador '@' se usa para multiplicar matrices
+    A_reconstruida = P @ D @ P_inv
+    
+    print(f"A reconstruida (P · D · P^-1):\n{A_reconstruida}")
+    
+    # Verificamos si es igual a la original (usando allclose por precisión decimal)
+    es_igual = np.allclose(A, A_reconstruida)
+    print(f"\n¿Es igual a la original? -> {es_igual}")
 
-print("Matriz Original:\n", A)
-print("Matriz Reconstruida:\n", A_reconstruida)</code></pre>
+# Ejecutar la función
+demostrar_diagonalizacion()
+        </code>
+        </pre>
         </div>
 
         <div class="slide">
